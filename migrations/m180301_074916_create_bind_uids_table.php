@@ -19,17 +19,18 @@ class m180301_074916_create_bind_uids_table extends Migration
         }
 
         $this->createTable('{{%bind_uids}}', [
-            'id' => $this->primaryKey(),
-            'uid' => $this->integer(11)->notNull(),
-            'status' => $this->tinyInteger(1)->notNull()->defaultValue(1),
-            'id_user' => $this->integer(11)->notNull()->defaultValue(0),
-            'created_at' => $this->integer(),
-            'updated_at' => $this->integer(),
+            'id' => $this->bigPrimaryKey(),
+            'status' => $this->smallInteger(1)->notNull()->defaultValue(1)->unsigned(),
+            'table_name' => $this->char(50)->notNull(),
+            'id_user' => $this->integer(11)->notNull()->defaultValue(0)->unsigned(),
+            'created_at' => $this->integer()->unsigned(),
+            'updated_at' => $this->integer()->unsigned(),
         ], $tableOptions);
 
         $this->createIndex('{{%idx-bind_uids-uid}}','{{%bind_uids}}','uid',true);
         $this->createIndex('{{%idx-bind_uids-id_user}}','{{%bind_uids}}','id_user');
         $this->createIndex('{{%idx-bind_uids-status}}','{{%bind_uids}}','status');
+        $this->createIndex('{{%idx-bind_uids-table_name}}','{{%bind_uids}}','table_name');
     }
 
     /**
@@ -40,6 +41,7 @@ class m180301_074916_create_bind_uids_table extends Migration
         $this->dropIndex('{{%idx-bind_uids-uid}}','{{%bind_uids}}');
         $this->dropIndex('{{%idx-bind_uids-id_user}}','{{%bind_uids}}');
         $this->dropIndex('{{%idx-bind_uids-status}}','{{%bind_uids}}');
+        $this->dropIndex('{{%idx-bind_uids-table_name}}','{{%bind_uids}}');
 
         $this->dropTable('{{%bind_uids}}');
     }

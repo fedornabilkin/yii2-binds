@@ -31,11 +31,11 @@ class BindModel extends ActiveRecord
     }
 
     /**
-     * @return ContentQuery
+     * @return BindQuery
      */
     public static function find()
     {
-        return new ContentQuery(get_called_class());
+        return new BindQuery(get_called_class());
     }
 
     /**
@@ -50,11 +50,11 @@ class BindModel extends ActiveRecord
     /**
      * Return query with filterAvailable filter by default.
      *
-     * @return ContentQuery
+     * @return BindQuery
      */
     public static function findFiltered()
     {
-        $query = new ContentQuery(get_called_class());
+        $query = new BindQuery(get_called_class());
         $query->filterAvailable();
         return $query;
     }

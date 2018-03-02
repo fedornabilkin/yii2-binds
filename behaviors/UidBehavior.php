@@ -44,9 +44,9 @@ class UidBehavior extends Behavior
             }
 //            $uid->id_user   = self::getUserId();
 //            $uid->id_action = 'create';
-//            $uid->table_name = $model::tableName();
+            $uid->table_name = $model::tableName();
             $uid->save();
-            $model->uid = Uid::findOne($uid->id)->uid;
+            $model->uid = Uid::findOne($uid->id)->id;
             //$model->uid = $uid->uid;
         }
     }
@@ -56,7 +56,7 @@ class UidBehavior extends Behavior
      */
     public function beforeUpdate() {
 
-        $uid = Uid::find()->where(['uid' => $this->owner])->one();
+        $uid = Uid::find()->where(['id' => $this->owner->uid])->one();
 
         if ($uid) {
             $uid->save();
@@ -65,7 +65,7 @@ class UidBehavior extends Behavior
 
     public function getUids()
     {
-        return $this->owner->hasOne(Uid::class, ['uid' => 'uid']);
+        return $this->owner->hasOne(Uid::class, ['id' => 'uid']);
     }
 
     public function getStatus()

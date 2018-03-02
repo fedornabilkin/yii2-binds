@@ -17,6 +17,9 @@ use yii\db\ActiveRecord;
  */
 class Uid extends ActiveRecord
 {
+    CONST STATUS_PUBLISHED = 1;
+    CONST STATUS_DRAFT = 2;
+    CONST STATUS_DELETED = 3;
 
     public function behaviors()
     {
@@ -32,7 +35,20 @@ class Uid extends ActiveRecord
         ]);
     }
 
-    public function getId(){return $this->getPrimaryKey();}
-    public static function tableName(){return '{{%bind_uids}}';}
+    public function getId()
+    {
+        return $this->getPrimaryKey();
+    }
+    public static function tableName()
+    {
+        return '{{%bind_uids}}';
+    }
+
+    public static function getStatusId($id = 0)
+    {
+        $arr = [
+
+        ];
+    }
 
 }

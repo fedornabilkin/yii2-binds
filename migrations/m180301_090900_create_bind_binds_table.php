@@ -20,8 +20,8 @@ class m180301_090900_create_bind_binds_table extends Migration
 
         $this->createTable('{{%bind_binds}}', [
             'id' => $this->primaryKey(),
-            'uid' => $this->bigInteger()->notNull(),
-            'uid_bind' => $this->bigInteger()->notNull(),
+            'uid' => $this->bigInteger()->notNull()->unsigned(),
+            'uid_bind' => $this->bigInteger()->notNull()->unsigned(),
         ], $tableOptions);
 
         $this->createIndex('{{%idx-bind_binds-uid}}','{{%bind_binds}}','uid');

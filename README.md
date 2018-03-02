@@ -1,31 +1,27 @@
 Связывание сущностей
 ====================
-Связывает модели и сущности посредством срединной таблицы
+Связывает модели и сущности посредством срединной таблицы.
 
-Installation
+Расширение требует php 7.0 и выше
+
+Установка
 ------------
 
-The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
-
-Either run
+Установите расширение с помощью [composer](http://getcomposer.org/download/).
 
 ```
 php composer.phar require --prefer-dist fedornabilkin/yii2-binds "*"
 ```
 
-or add
+или добавьте в секцию require в файл `composer.json`.
 
 ```
-"fedornabilkin/yii2-binds": "*"
+"fedornabilkin/yii2-binds": "dev-master"
 ```
 
-to the require section of your `composer.json` file.
-
-
-Usage
+Выполните миграции
 -----
 
-Once the extension is installed, simply use it in your code by  :
-
 ```php
-<?= \fedornabilkin\binds\AutoloadExample::widget(); ?>```
+yii migrate --migrationPath=@fedornabilkin/bind/migrations```
+

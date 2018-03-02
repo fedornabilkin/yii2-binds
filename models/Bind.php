@@ -17,8 +17,14 @@ use yii\db\ActiveRecord;
 class Bind extends ActiveRecord
 {
 
-    public function getId(){return $this->getPrimaryKey();}
-    public static function tableName(){return '{{%bind_binds}}';}
+    public function getId()
+    {
+        return $this->getPrimaryKey();
+    }
+    public static function tableName()
+    {
+        return '{{%bind_binds}}';
+    }
 
     /**
      * @param $uid
