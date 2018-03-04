@@ -6,7 +6,7 @@
  * Time: 12:30
  */
 
-namespace fedornabilkin\models;
+namespace fedornabilkin\binds\models;
 
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;

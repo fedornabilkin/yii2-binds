@@ -6,9 +6,9 @@
  * Time: 14:19
  */
 
-namespace fedornabilkin\models\base;
+namespace fedornabilkin\binds\models\base;
 
-use fedornabilkin\behaviors\UidBehavior;
+use fedornabilkin\binds\behaviors\UidBehavior;
 use yii\db\ActiveRecord;
 
 /**
@@ -22,7 +22,7 @@ class BindModel extends ActiveRecord
      */
     public function behaviors()
     {
-        return array_merge(parent::behaviors(), [
+        return array_merge_recursive(parent::behaviors(), [
             // запускаем первым
             'UidBehavior' => [
                 'class' => UidBehavior::class

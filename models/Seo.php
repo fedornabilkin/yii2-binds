@@ -6,15 +6,14 @@
  * Time: 22:22
  */
 
-namespace fedornabilkin\models;
+namespace fedornabilkin\binds\models;
 
 
-use fedornabilkin\models\base\BindModel;
+use fedornabilkin\binds\models\base\BindModel;
 use yii\helpers\StringHelper;
 
 class Seo extends BindModel
 {
-
 
     public static function tableName()
     {
@@ -24,11 +23,11 @@ class Seo extends BindModel
     public function rules()
     {
         return [
-            [['title', 'keywords', 'description', 'path_content', 'alias', 'h1'], 'string'],
+            [['title', 'keywords', 'description', 'alias', 'h1'], 'string'],
             [['uid_content'], 'integer'],
             [['uid_content', 'alias'], 'required'],
             [['alias'], 'unique'],
-            [['description','title', 'path_content', 'keywords', 'h1'], 'string','max' => 150]
+            [['description','title', 'keywords', 'h1'], 'string','max' => 150]
         ];
     }
 
@@ -47,7 +46,6 @@ class Seo extends BindModel
     protected static function loadContentMeta($uid)
     {
         if (!$model = self::findOneFiltered(['uid_content' => $uid])) {
-            //$this->addError('uid_content', 'error');
             return false;
         };
         return $model;
@@ -60,18 +58,18 @@ class Seo extends BindModel
         $path = ($path != '') ? $path : ':mainpage:';
         $alias = (isset($get['alias'])) ? $get['alias'] : null;
 
-        $uid = (Page::findFiltered()->where(['slug_compiled' => $path])->orWhere(['route' => $path])->one()->uid) ?? self::findFiltered()->where(['alias' => $alias])->one() ?? false;
-        return (is_int($uid)) ? self::loadContentMeta($uid) : $uid;
+        if(!empty($alias)) {
+//        $pageUid = Page::findFiltered()->where(['slug_compiled' => $path])->orWhere(['route' => $path])->one()->uid;
+            $uid = self::findFiltered()->andFilterWhere(['alias' => $alias])->one() ?? false;
+            return (is_int($uid)) ? self::loadContentMeta($uid) : $uid;
+        }else{
+            return false;
+        }
     }
 
     public function getBinds()
     {
         return $this->hasMany(Bind::class, ['uid' => 'uid']);
-    }
-
-    public static function getSeoByUid($uid){
-        $model = Seo::find()->where(['uid_content' => $uid])->asArray()->one();
-        return $model;
     }
 
     public function prepareAlias($str){

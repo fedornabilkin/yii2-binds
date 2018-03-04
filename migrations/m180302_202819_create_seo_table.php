@@ -19,12 +19,12 @@ class m180302_202819_create_seo_table extends Migration
         }
         $this->createTable('{{%bind_seo}}', [
             'id' => $this->primaryKey(),
-            'uid' => $this->bigInteger()->notNull()->unsigned(),
-            'uid_content' => $this->bigInteger()->unsigned(),
+            'uid' => $this->bigInteger()->notNull()->unsigned()->unique(),
+            'uid_content' => $this->bigInteger()->unsigned()->unique(),
             'title' => $this->char(150),
             'keywords' => $this->char(150),
             'description' => $this->char(150),
-            'alias' => $this->char(150),
+            'alias' => $this->char(150)->unique(),
             'h1' => $this->char(150),
         ], $tableOptions);
 

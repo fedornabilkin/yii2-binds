@@ -27,7 +27,7 @@ class m180301_074916_create_bind_uids_table extends Migration
             'updated_at' => $this->integer()->unsigned(),
         ], $tableOptions);
 
-        $this->createIndex('{{%idx-bind_uids-uid}}','{{%bind_uids}}','uid',true);
+//        $this->createIndex('{{%idx-bind_uids-uid}}','{{%bind_uids}}','uid',true);
         $this->createIndex('{{%idx-bind_uids-id_user}}','{{%bind_uids}}','id_user');
         $this->createIndex('{{%idx-bind_uids-status}}','{{%bind_uids}}','status');
         $this->createIndex('{{%idx-bind_uids-table_name}}','{{%bind_uids}}','table_name');
@@ -38,7 +38,7 @@ class m180301_074916_create_bind_uids_table extends Migration
      */
     public function safeDown()
     {
-        $this->dropIndex('{{%idx-bind_uids-uid}}','{{%bind_uids}}');
+//        $this->dropIndex('{{%idx-bind_uids-uid}}','{{%bind_uids}}');
         $this->dropIndex('{{%idx-bind_uids-id_user}}','{{%bind_uids}}');
         $this->dropIndex('{{%idx-bind_uids-status}}','{{%bind_uids}}');
         $this->dropIndex('{{%idx-bind_uids-table_name}}','{{%bind_uids}}');

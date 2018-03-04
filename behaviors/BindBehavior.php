@@ -6,9 +6,9 @@
  * Time: 12:58
  */
 
-namespace fedornabilkin\behaviors;
+namespace fedornabilkin\binds\behaviors;
 
-use fedornabilkin\models\Bind;
+use fedornabilkin\binds\models\Bind;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 

@@ -6,10 +6,10 @@
  * Time: 22:19
  */
 
-namespace fedornabilkin\behaviors;
+namespace fedornabilkin\binds\behaviors;
 
 
-use fedornabilkin\models\Seo;
+use fedornabilkin\binds\models\Seo;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 use yii\web\View;
@@ -23,7 +23,7 @@ class SeoBehavior extends Behavior
             ActiveRecord::EVENT_BEFORE_INSERT => 'beforeInsert',
             ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdate',
             ActiveRecord::EVENT_BEFORE_VALIDATE => 'beforeValidate',
-//            View::EVENT_BEGIN_PAGE => 'beginPage',
+            View::EVENT_BEGIN_PAGE => 'beginPage',
         ];
     }
 
@@ -34,10 +34,10 @@ class SeoBehavior extends Behavior
         }else{
             return false;
         }
-
     }
 
-    public function beforeValidate(){
+    public function beforeValidate()
+    {
         return $this->validateSeo() ? true : false;
     }
 
@@ -85,6 +85,7 @@ class SeoBehavior extends Behavior
 
     public function beginPage()
     {
+        /** @var View $view */
         $view = $this->owner;
 
         $seo = Seo::loadMeta();
@@ -92,15 +93,10 @@ class SeoBehavior extends Behavior
         if (!$seo) {
             return false;
         }
+
         $view->title = $seo->title;
-        $view->registerMetaTag(['name' => 'keywords', 'content' => $seo->keywords]);
-        $view->registerMetaTag(['name' => 'description', 'content' => $seo->description]);
-        $view->registerMetaTag(['name' => 'title', 'content' => $seo->title]);
-        /*$view->blocks['schema'] = '
-            <div itemscope itemtype="http://schema.org/Organization">
-                <span itemprop="keywords">'.$seo->keywords.'</span>
-                <span itemprop="description">'.$seo->description.'</span>
-                <span itemprop="title">'.$seo->title.'</span>
-            </div>';*/
+        $view->registerMetaTag(['name' => 'title', 'content' => $seo->title], 'title');
+        $view->registerMetaTag(['name' => 'keywords', 'content' => $seo->keywords], 'keywords');
+        $view->registerMetaTag(['name' => 'description', 'content' => $seo->description], 'description');
     }
 }

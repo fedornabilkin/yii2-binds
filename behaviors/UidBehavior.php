@@ -6,10 +6,10 @@
  * Time: 13:05
  */
 
-namespace fedornabilkin\behaviors;
+namespace fedornabilkin\binds\behaviors;
 
 
-use fedornabilkin\models\Uid;
+use fedornabilkin\binds\models\Uid;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 
@@ -35,19 +35,18 @@ class UidBehavior extends Behavior
 
     public function beforeInsert() {
 
-        $model = $this->owner;
-        if (!$model->uid)
-        {
+        $model = $this->getOwnerModel();
+
+        if (!$model->uid) {
             $uid = new Uid();
             if ($this->insertStatus) {
-                $uid->id_status = $this->insertStatus;
+                $uid->status = $this->insertStatus;
             }
 //            $uid->id_user   = self::getUserId();
 //            $uid->id_action = 'create';
             $uid->table_name = $model::tableName();
             $uid->save();
             $model->uid = Uid::findOne($uid->id)->id;
-            //$model->uid = $uid->uid;
         }
     }
 
@@ -56,11 +55,19 @@ class UidBehavior extends Behavior
      */
     public function beforeUpdate() {
 
-        $uid = Uid::find()->where(['id' => $this->owner->uid])->one();
+        $model = $this->getOwnerModel();
+        $uid = Uid::find()->where(['id' => $model->uid])->one();
 
         if ($uid) {
             $uid->save();
+        }else{
+            $this->beforeInsert();
         }
+    }
+
+    private function getOwnerModel()
+    {
+        return $this->owner;
     }
 
     public function getUids()

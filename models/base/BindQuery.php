@@ -6,10 +6,10 @@
  * Time: 14:51
  */
 
-namespace fedornabilkin\models\base;
+namespace fedornabilkin\binds\models\base;
 
 
-use fedornabilkin\models\Uid;
+use fedornabilkin\binds\models\Uid;
 use Yii;
 use yii\db\ActiveQuery;
 
@@ -38,7 +38,7 @@ class BindQuery extends ActiveQuery
         $modelTable = $this->modelClass::tableName();
         $uidsTable = Uid::tableName();
 
-        $subquery = "(SELECT $modelTable.* FROM $modelTable INNER JOIN $uidsTable ua__$uniq ON ua__$uniq.id = $modelTable.uid AND ua__$uniq.id_status $sign $status)";
+        $subquery = "(SELECT $modelTable.* FROM $modelTable INNER JOIN $uidsTable ua__$uniq ON ua__$uniq.id = $modelTable.uid AND ua__$uniq.status $sign $status)";
         return $this->from([$modelTable => $subquery]);
     }
 

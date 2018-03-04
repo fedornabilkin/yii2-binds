@@ -6,7 +6,7 @@
  * Time: 12:44
  */
 
-namespace fedornabilkin\models;
+namespace fedornabilkin\binds\models;
 
 use yii\db\ActiveRecord;
 
