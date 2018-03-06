@@ -62,6 +62,9 @@ class SeoBehavior extends Behavior
             return ($model->validate()) ? $model : false;
         }
 
+        // поискать seo через бинды
+        // вытащить модель, если есть или создать новую
+
         $post = \Yii::$app->request->post();
 
         $seo = Seo::findOneFiltered(['uid_content' => $model->uid]) ?: new Seo();

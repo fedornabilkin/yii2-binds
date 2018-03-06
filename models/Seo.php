@@ -45,7 +45,7 @@ class Seo extends BindModel
 
     protected static function loadContentMeta($uid)
     {
-        if (!$model = self::findOneFiltered(['uid_content' => $uid])) {
+        if (!$model = self::findOneFiltered(['uid' => $uid])) {
             return false;
         };
         return $model;
@@ -54,14 +54,10 @@ class Seo extends BindModel
     public static function loadMeta()
     {
         $get = \Yii::$app->request->get();
-        $path = \Yii::$app->request->getPathInfo();
-        $path = ($path != '') ? $path : ':mainpage:';
         $alias = (isset($get['alias'])) ? $get['alias'] : null;
 
         if(!empty($alias)) {
-//        $pageUid = Page::findFiltered()->where(['slug_compiled' => $path])->orWhere(['route' => $path])->one()->uid;
-            $uid = self::findFiltered()->andFilterWhere(['alias' => $alias])->one() ?? false;
-            return (is_int($uid)) ? self::loadContentMeta($uid) : $uid;
+            return self::findFiltered()->andFilterWhere(['alias' => $alias])->one() ?? false;
         }else{
             return false;
         }
@@ -69,7 +65,7 @@ class Seo extends BindModel
 
     public function getBinds()
     {
-        return $this->hasMany(Bind::class, ['uid' => 'uid']);
+        return $this->hasMany(Bind::class, ['uid_bind' => 'uid']);
     }
 
     public function prepareAlias($str){
