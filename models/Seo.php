@@ -24,8 +24,7 @@ class Seo extends BindModel
     {
         return [
             [['title', 'keywords', 'description', 'alias', 'h1'], 'string'],
-            [['uid_content'], 'integer'],
-            [['uid_content', 'alias'], 'required'],
+            [['alias'], 'required'],
             [['alias'], 'unique'],
             [['description','title', 'keywords', 'h1'], 'string','max' => 150]
         ];
@@ -37,18 +36,9 @@ class Seo extends BindModel
             'title' => 'Заголовок',
             'keywords' => 'Ключевые слова',
             'description' => 'Описание',
-            'path_content' => 'Путь к разделу',
             'alias' => 'ЧПУ',
             'h1' => 'H1'
         ];
-    }
-
-    protected static function loadContentMeta($uid)
-    {
-        if (!$model = self::findOneFiltered(['uid' => $uid])) {
-            return false;
-        };
-        return $model;
     }
 
     public static function loadMeta()
@@ -61,11 +51,6 @@ class Seo extends BindModel
         }else{
             return false;
         }
-    }
-
-    public function getBinds()
-    {
-        return $this->hasMany(Bind::class, ['uid_bind' => 'uid']);
     }
 
     public function prepareAlias($str){

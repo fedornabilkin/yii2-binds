@@ -18,9 +18,8 @@ class m180302_202819_create_seo_table extends Migration
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
         }
         $this->createTable('{{%bind_seo}}', [
-            'id' => $this->primaryKey(),
+            'id' => $this->primaryKey()->unsigned(),
             'uid' => $this->bigInteger()->notNull()->unsigned()->unique(),
-//            'uid_content' => $this->bigInteger()->unsigned()->unique(),
             'title' => $this->char(150),
             'keywords' => $this->char(150),
             'description' => $this->char(150),
@@ -28,8 +27,7 @@ class m180302_202819_create_seo_table extends Migration
             'h1' => $this->char(150),
         ], $tableOptions);
 
-//        $this->createIndex('{{%idx-bind_seo-alias}}','{{%bind_seo}}','alias');
-//        $this->createIndex('{{%idx-bind_seo-uid}}','{{%bind_seo}}','uid');
+        $this->createIndex('{{%idx-bind_seo-uid}}','{{%bind_seo}}','uid');
 
         $this->addForeignKey('fki-bind_seo-uid-bind_uids-id',
             '{{%bind_seo}}',
@@ -45,8 +43,7 @@ class m180302_202819_create_seo_table extends Migration
     public function safeDown()
     {
         $this->dropForeignKey('fki-bind_seo-uid-bind_uids-id', '{{%bind_seo}}');
-//        $this->dropIndex('{{%idx-bind_seo-alias}}','{{%bind_seo}}');
-//        $this->dropIndex('{{%idx-bind_seo-uid_content}}','{{%bind_seo}}');
+        $this->dropIndex('{{%idx-bind_seo-uid}}','{{%bind_seo}}');
 
         $this->dropTable('{{%bind_seo}}');
     }

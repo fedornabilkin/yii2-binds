@@ -16,6 +16,7 @@ use yii\db\ActiveRecord;
  */
 class Bind extends ActiveRecord
 {
+    private static $_nowBinds = [];
 
     public function getId()
     {
@@ -33,10 +34,14 @@ class Bind extends ActiveRecord
      * @param $binds
      * @return boolean
      */
-    public static function addBinds($uid, $binds)
+    public static function addBinds($uid, array $binds)
     {
+
+        $nowUidsBinds = self::_getNowBinds($uid);
+        $addUidsBinds = array_diff( $binds, $nowUidsBinds);
+
         $arr = [];
-        foreach ($binds as $uidBind) {
+        foreach ($addUidsBinds as $uidBind) {
             $arr[] = [$uid, $uidBind];
         }
 
@@ -61,12 +66,16 @@ class Bind extends ActiveRecord
      */
     public static function removeBinds($uid, $binds)
     {
-        if (!$binds) {
+        if (!$binds or !is_array($binds)) {
             return false;
         }
+
+        $nowUidsBinds = self::_getNowBinds($uid);
+        $removeUidsBinds = array_diff( $nowUidsBinds, $binds);
+
         self::deleteAll([
             'uid' => $uid,
-            'uid_bind' => $binds
+            'uid_bind' => $removeUidsBinds
         ]);
         return true;
     }
@@ -80,18 +89,10 @@ class Bind extends ActiveRecord
      */
     public static function setBinds($uid, $uidsBinds=[])
     {
-        $nowBinds = self::find()->where(['uid' => $uid])->asArray()->all();
-        $nowUidsBinds = array_column($nowBinds, 'uid_bind');
-
-        $removeUidsBinds = array_diff( $nowUidsBinds, $uidsBinds);
-        $addUidsBinds = array_diff( $uidsBinds, $nowUidsBinds);
-
         // удаляем отвязанные бинды
-        self::removeBinds($uid, $removeUidsBinds);
-
+        self::removeBinds($uid, $uidsBinds);
         // добавляем новые бинды
-        self::addBinds($uid, $addUidsBinds);
-
+        self::addBinds($uid, $uidsBinds);
     }
 
     /**
@@ -110,5 +111,17 @@ class Bind extends ActiveRecord
         }
 
         return $result;
+    }
+
+    /**
+     * @param $uid
+     * @return array
+     */
+    private static function _getNowBinds($uid): array
+    {
+        if (!self::$_nowBinds) {
+            self::$_nowBinds = self::find()->where(['uid' => $uid])->asArray()->all();
+        }
+        return  array_column(self::$_nowBinds, 'uid_bind');
     }
 }

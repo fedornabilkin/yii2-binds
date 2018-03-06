@@ -19,7 +19,7 @@ class m180301_090900_create_bind_binds_table extends Migration
         }
 
         $this->createTable('{{%bind_binds}}', [
-            'id' => $this->primaryKey(),
+            'id' => $this->primaryKey()->unsigned(),
             'uid' => $this->bigInteger()->notNull()->unsigned(),
             'uid_bind' => $this->bigInteger()->notNull()->unsigned(),
         ], $tableOptions);
@@ -27,6 +27,20 @@ class m180301_090900_create_bind_binds_table extends Migration
         $this->createIndex('{{%idx-bind_binds-uid}}','{{%bind_binds}}','uid');
         $this->createIndex('{{%idx-bind_binds-uid_bind}}','{{%bind_binds}}','uid_bind');
         $this->createIndex('{{%idx-bind_binds-uid_uid_bind}}','{{%bind_binds}}', ['uid', 'uid_bind'], true);
+
+        $this->addForeignKey('fki-bind_binds-uid-bind_uids-id',
+            '{{%bind_binds}}',
+            'uid',
+            '{{%bind_uids}}',
+            'id',
+            'CASCADE');
+
+        $this->addForeignKey('fki-bind_binds-uid_bind-bind_uids-id',
+            '{{%bind_binds}}',
+            'uid_bind',
+            '{{%bind_uids}}',
+            'id',
+            'CASCADE');
     }
 
     /**
@@ -34,6 +48,9 @@ class m180301_090900_create_bind_binds_table extends Migration
      */
     public function safeDown()
     {
+        $this->dropForeignKey('fki-bind_binds-uid-bind_uids-id', '{{%bind_binds}}');
+        $this->dropForeignKey('fki-bind_binds-uid_bind-bind_uids-id', '{{%bind_binds}}');
+
         $this->dropIndex('{{%idx-bind_binds-uid}}','{{%bind_binds}}');
         $this->dropIndex('{{%idx-bind_binds-uid_bind}}','{{%bind_binds}}');
         $this->dropIndex('{{%idx-bind_binds-uid_uid_bind}}','{{%bind_binds}}');

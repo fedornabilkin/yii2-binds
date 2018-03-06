@@ -9,6 +9,8 @@
 namespace fedornabilkin\binds\behaviors;
 
 
+use fedornabilkin\binds\models\base\BindModel;
+use fedornabilkin\binds\models\Bind;
 use fedornabilkin\binds\models\Seo;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
@@ -16,6 +18,8 @@ use yii\web\View;
 
 class SeoBehavior extends Behavior
 {
+    /** @var BindModel */
+    private $_ownerModel;
 
     public function events()
     {
@@ -31,6 +35,8 @@ class SeoBehavior extends Behavior
     {
         if ($seo = $this->validateSeo()) {
             $seo->save(false);
+
+            Bind::addBinds($this->_ownerModel->uid, [$seo->uid]);
         }else{
             return false;
         }
@@ -52,30 +58,27 @@ class SeoBehavior extends Behavior
     }
 
     public function validateSeo(){
-        $model = $this->owner;
 
-        if (!$model->uid){
+        $this->_ownerModel = $this->owner;
+
+        if (!$this->_ownerModel->uid){
             return true;
         }
 
-        if ($model instanceof Seo) {
-            return ($model->validate()) ? $model : false;
+        if ($this->_ownerModel instanceof Seo) {
+            return ($this->_ownerModel->validate()) ? $this->_ownerModel : false;
         }
-
-        // поискать seo через бинды
-        // вытащить модель, если есть или создать новую
 
         $post = \Yii::$app->request->post();
 
-        $seo = Seo::findOneFiltered(['uid_content' => $model->uid]) ?: new Seo();
+        $seo = $this->_ownerModel->getBindModel(Seo::class)->all()[0] ?? new Seo();
         $seo->load($post);
-        $seo->uid_content = $model->uid;
 
-        $alias = $seo->alias ?: ($model->title ?? ($seo->title ?: '') );
+        $alias = $seo->alias ?: ($this->_ownerModel->title ?? ($seo->title ?: '') );
         $seo->alias = (new Seo)->prepareAlias($alias);
 
         if (!$seo->validate()) {
-            $model->addError('seo', 'error');
+            $this->_ownerModel->addError('seo', 'error');
             $msg = '';
             foreach ($seo->errors as $error) {
                 $msg .= ' '.$error[0];
@@ -88,14 +91,12 @@ class SeoBehavior extends Behavior
 
     public function beginPage()
     {
-        /** @var View $view */
-        $view = $this->owner;
-
-        $seo = Seo::loadMeta();
-
-        if (!$seo) {
+        if (!$seo = Seo::loadMeta()) {
             return false;
         }
+
+        /** @var View $view */
+        $view = $this->owner;
 
         $view->title = $seo->title;
         $view->registerMetaTag(['name' => 'title', 'content' => $seo->title], 'title');
