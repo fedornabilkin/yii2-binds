@@ -26,6 +26,7 @@ class m180301_090900_create_bind_binds_table extends Migration
 
         $this->createIndex('{{%idx-bind_binds-uid}}','{{%bind_binds}}','uid');
         $this->createIndex('{{%idx-bind_binds-uid_bind}}','{{%bind_binds}}','uid_bind');
+        $this->createIndex('{{%idx-bind_binds-uid_uid_bind}}','{{%bind_binds}}', ['uid', 'uid_bind'], true);
     }
 
     /**
@@ -35,6 +36,7 @@ class m180301_090900_create_bind_binds_table extends Migration
     {
         $this->dropIndex('{{%idx-bind_binds-uid}}','{{%bind_binds}}');
         $this->dropIndex('{{%idx-bind_binds-uid_bind}}','{{%bind_binds}}');
+        $this->dropIndex('{{%idx-bind_binds-uid_uid_bind}}','{{%bind_binds}}');
 
         $this->dropTable('bind_binds');
     }
