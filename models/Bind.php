@@ -27,6 +27,53 @@ class Bind extends ActiveRecord
     }
 
     /**
+     * Добавляет связи
+     *
+     * @param $uid
+     * @param $binds
+     * @return boolean
+     */
+    public static function addBinds($uid, $binds)
+    {
+        $arr = [];
+        foreach ($binds as $uidBind) {
+            $arr[] = [$uid, $uidBind];
+        }
+
+        if ($arr) {
+            $conn = \Yii::$app->db;
+
+            $conn->createCommand()
+                ->batchInsert(Bind::tableName(), ['uid', 'uid_bind'], $arr)
+                ->execute();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Удаляет связи
+     *
+     * @param $uid
+     * @param $UidsBinds
+     * @return boolean
+     */
+    public static function removeBinds($uid, $binds)
+    {
+        if (!$binds) {
+            return false;
+        }
+        self::deleteAll([
+            'uid' => $uid,
+            'uid_bind' => $binds
+        ]);
+        return true;
+    }
+
+    /**
+     * Обновляет связи (добавляет новые, удаляет старые)
+     *
      * @param $uid
      * @param array $uidsBinds
      * @throws \yii\db\Exception
@@ -40,27 +87,11 @@ class Bind extends ActiveRecord
         $addUidsBinds = array_diff( $uidsBinds, $nowUidsBinds);
 
         // удаляем отвязанные бинды
-        if ($removeUidsBinds) {
-            self::deleteAll([
-                'uid' => $uid,
-                'uid_bind' => $removeUidsBinds
-            ]);
-        }
+        self::removeBinds($uid, $removeUidsBinds);
 
         // добавляем новые бинды
-        if ($addUidsBinds)
-        {
-            $arr = [];
-            foreach ($addUidsBinds as $uidBind)
-            {
-                $arr[] = [$uid, $uidBind];
-            }
-            $conn = \Yii::$app->db;
-            $conn->createCommand()->batchInsert(Bind::tableName(), [
-                'uid',
-                'uid_bind'
-            ], $arr )->execute();
-        }
+        self::addBinds($uid, $addUidsBinds);
+
     }
 
     /**

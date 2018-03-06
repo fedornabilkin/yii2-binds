@@ -101,7 +101,7 @@ class BindModel extends ActiveRecord
     {
         /** @var BindQuery $query */
         $query = $this->hasMany($model_name, ['uid' => 'uid_bind'])
-            ->viaTable(Bind::class, ['uid' => 'uid']);
+            ->viaTable(Bind::tableName(), ['uid' => 'uid']);
         return $query->filterAvailable();
     }
 
