@@ -10,33 +10,47 @@ namespace fedornabilkin\binds\behaviors;
 
 
 use fedornabilkin\binds\models\base\BindModel;
-use fedornabilkin\binds\models\Bind;
 use fedornabilkin\binds\models\Seo;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 use yii\web\View;
 
+/**
+ * Class SeoBehavior
+ * @package fedornabilkin\binds\behaviors
+ */
 class SeoBehavior extends Behavior
 {
+    /** @var  Seo */
+    public $seoModel;
     /** @var BindModel */
     private $_ownerModel;
 
+    /**
+     * @return array
+     */
     public function events()
     {
         return [
-            ActiveRecord::EVENT_BEFORE_INSERT => 'beforeInsert',
-            ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdate',
+            ActiveRecord::EVENT_AFTER_INSERT => 'afterInsert',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'afterUpdate',
+
             ActiveRecord::EVENT_BEFORE_VALIDATE => 'beforeValidate',
+
             View::EVENT_BEGIN_PAGE => 'beginPage',
         ];
     }
 
+    /**
+     * Сохраняет модель Seo после успешной валидации
+     * @return bool
+     */
     protected function updateSeo()
     {
-        if ($seo = $this->validateSeo()) {
-            $seo->save(false);
-
-            Bind::addBinds($this->_ownerModel->uid, [$seo->uid]);
+        if ($this->validateSeo()) {
+            $this->seoModel->save(false);
+            return true;
+//            $this->_ownerModel->link('seo', $this->seoModel);
         }else{
             return false;
         }
@@ -47,12 +61,12 @@ class SeoBehavior extends Behavior
         return $this->validateSeo() ? true : false;
     }
 
-    public function beforeInsert()
+    public function afterInsert()
     {
         $this->updateSeo();
     }
 
-    public function beforeUpdate()
+    public function afterUpdate()
     {
         $this->updateSeo();
     }
@@ -61,6 +75,7 @@ class SeoBehavior extends Behavior
 
         $this->_ownerModel = $this->owner;
 
+        // Невозможно сохранить Seo, если в родительской модели нет uid
         if (!$this->_ownerModel->uid){
             return true;
         }
@@ -69,30 +84,28 @@ class SeoBehavior extends Behavior
             return ($this->_ownerModel->validate()) ? $this->_ownerModel : false;
         }
 
-        $post = \Yii::$app->request->post();
+        // Если Seo еще не прикреплено к модели (при создании новой записи) , то создаем новую модель Seo
+        $this->seoModel = $this->_ownerModel->seo ?? new Seo();
+        $this->seoModel->load(\Yii::$app->request->post());
 
-        $seo = $this->_ownerModel->getBindModel(Seo::class)->all()[0] ?? new Seo();
-        $seo->load($post);
+        // Подготовка alias, добавление content_uid (привязать методом link не получается)
+        $alias = $this->seoModel->alias ?: ($this->_ownerModel->title ?? ($this->seoModel->title ?: '') );
+        $this->seoModel->alias = $this->seoModel->prepareAlias($alias);
+        $this->seoModel->uid_content = $this->_ownerModel->uid;
 
-        $alias = $seo->alias ?: ($this->_ownerModel->title ?? ($seo->title ?: '') );
-        $seo->alias = (new Seo)->prepareAlias($alias);
-
-        if (!$seo->validate()) {
-            $this->_ownerModel->addError('seo', 'error');
-            $msg = '';
-            foreach ($seo->errors as $error) {
-                $msg .= ' '.$error[0];
-            }
-            \Yii::$app->session->setFlash('error', $msg);
-            return false;
+        if (!$this->seoModel->validate()) {
+            return $this->_setErrors();
         }
-        return $seo;
+        return true;
     }
 
+    /**
+     * Регистрация meta перед отрисовкой страницы
+     */
     public function beginPage()
     {
         if (!$seo = Seo::loadMeta()) {
-            return false;
+            return;
         }
 
         /** @var View $view */
@@ -102,5 +115,19 @@ class SeoBehavior extends Behavior
         $view->registerMetaTag(['name' => 'title', 'content' => $seo->title], 'title');
         $view->registerMetaTag(['name' => 'keywords', 'content' => $seo->keywords], 'keywords');
         $view->registerMetaTag(['name' => 'description', 'content' => $seo->description], 'description');
+    }
+
+    /**
+     * @return bool
+     */
+    private function _setErrors(): bool
+    {
+        $this->_ownerModel->addError('seo', 'error');
+        $msg = '';
+        foreach ($this->seoModel->errors as $error) {
+            $msg .= ' ' . $error[0];
+        }
+        \Yii::$app->session->setFlash('error', $msg);
+        return false;
     }
 }

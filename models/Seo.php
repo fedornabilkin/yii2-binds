@@ -12,12 +12,16 @@ namespace fedornabilkin\binds\models;
 use fedornabilkin\binds\models\base\BindModel;
 use yii\helpers\StringHelper;
 
+/**
+ * Class Seo
+ * @package fedornabilkin\binds\models
+ */
 class Seo extends BindModel
 {
 
     public static function tableName()
     {
-        return '{{%bind_seo}}';
+        return 'bind_seo';
     }
 
     public function rules()

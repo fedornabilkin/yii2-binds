@@ -16,6 +16,7 @@ use yii\db\ActiveRecord;
  */
 class Bind extends ActiveRecord
 {
+    /** @var array Cache property */
     private static $_nowBinds = [];
 
     public function getId()
@@ -24,11 +25,11 @@ class Bind extends ActiveRecord
     }
     public static function tableName()
     {
-        return '{{%bind_binds}}';
+        return 'bind_binds';
     }
 
     /**
-     * Добавляет связи
+     * Добавляет связи. Если uid из массива $binds нет в привязанных uid
      *
      * @param $uid
      * @param $binds
@@ -37,11 +38,11 @@ class Bind extends ActiveRecord
     public static function addBinds($uid, array $binds)
     {
 
-        $nowUidsBinds = self::_getNowBinds($uid);
-        $addUidsBinds = array_diff( $binds, $nowUidsBinds);
+        $nowBinds = self::_getNowBinds($uid);
+        $addBinds = array_diff($binds, $nowBinds);
 
         $arr = [];
-        foreach ($addUidsBinds as $uidBind) {
+        foreach ($addBinds as $uidBind) {
             $arr[] = [$uid, $uidBind];
         }
 
@@ -58,25 +59,18 @@ class Bind extends ActiveRecord
     }
 
     /**
-     * Удаляет связи
+     * Удаляет связи. Если некоторых привязанных uid нет в новом массиве $binds
      *
      * @param $uid
-     * @param $UidsBinds
+     * @param $binds
      * @return boolean
      */
     public static function removeBinds($uid, $binds)
     {
-        if (!$binds or !is_array($binds)) {
-            return false;
-        }
+        $nowBinds = self::_getNowBinds($uid);
+        $removeBinds = array_diff($nowBinds, $binds);
 
-        $nowUidsBinds = self::_getNowBinds($uid);
-        $removeUidsBinds = array_diff( $nowUidsBinds, $binds);
-
-        self::deleteAll([
-            'uid' => $uid,
-            'uid_bind' => $removeUidsBinds
-        ]);
+        self::deleteAll(['uid' => $uid, 'uid_bind' => $removeBinds]);
         return true;
     }
 
@@ -85,14 +79,11 @@ class Bind extends ActiveRecord
      *
      * @param $uid
      * @param array $uidsBinds
-     * @throws \yii\db\Exception
+     * @return boolean
      */
     public static function setBinds($uid, $uidsBinds=[])
     {
-        // удаляем отвязанные бинды
-        self::removeBinds($uid, $uidsBinds);
-        // добавляем новые бинды
-        self::addBinds($uid, $uidsBinds);
+        return self::removeBinds($uid, $uidsBinds) && self::addBinds($uid, $uidsBinds);
     }
 
     /**
@@ -101,16 +92,7 @@ class Bind extends ActiveRecord
      */
     public static function getBinds($uid)
     {
-        $binds = self::find()->where([
-            'uid' => $uid
-        ])->asArray()->all();
-        $result = [];
-        foreach ($binds as $bind)
-        {
-            $result[] = $bind['uid_bind'];
-        }
-
-        return $result;
+        return self::_getNowBinds($uid);
     }
 
     /**

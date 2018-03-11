@@ -13,6 +13,10 @@ use fedornabilkin\binds\models\Uid;
 use Yii;
 use yii\db\ActiveQuery;
 
+/**
+ * Class BindQuery
+ * @package fedornabilkin\binds\models\base
+ */
 class BindQuery extends ActiveQuery
 {
     /**

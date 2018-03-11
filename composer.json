@@ -1,8 +1,8 @@
 {
   "name": "fedornabilkin/yii2-binds",
-  "description": "Связывает модели и сущности посредством срединной таблицы",
+  "description": "Связывает модели и сущности посредством срединной таблицы на основе глобального идентификатора uid",
   "type": "yii2-extension",
-  "keywords": ["yii2","extension","binds","db"],
+  "keywords": ["yii2","extension","binds","db","seo","catalog"],
   "license": "MIT",
   "authors": [
     {
@@ -11,7 +11,9 @@
     }
   ],
   "require": {
-    "yiisoft/yii2": "~2.0.0"
+    "yiisoft/yii2": "~2.0.0",
+    "bower-asset/simple-ajax-requests": "~0.1",
+    "kartik-v/yii2-tree-manager": "~1.0.8"
   },
   "autoload": {
     "psr-4": {

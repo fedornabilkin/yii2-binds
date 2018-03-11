@@ -23,13 +23,9 @@ class Uid extends ActiveRecord
 
     public function behaviors()
     {
-        return array_merge(parent::behaviors(), [
+        return array_merge_recursive(parent::behaviors(), [
             'TimestampBehavior' => [
                 'class' => TimestampBehavior::class,
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
-                ],
             ],
 
         ]);
@@ -41,14 +37,24 @@ class Uid extends ActiveRecord
     }
     public static function tableName()
     {
-        return '{{%bind_uids}}';
+        return 'bind_uids';
     }
 
-    public static function getStatusId($id = 0)
+    /**
+     * Список статусов или название статуса по id
+     *
+     * @param int $id
+     * @return array|string
+     */
+    public static function getStatuses($id = 0)
     {
         $arr = [
-
+            self::STATUS_PUBLISHED => 'Опубликован',
+            self::STATUS_DRAFT => 'Черновик',
+            self::STATUS_DELETED => 'Удален',
         ];
+
+        return $id ? $arr[$id] : $arr;
     }
 
 }

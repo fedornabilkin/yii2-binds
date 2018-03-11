@@ -8,21 +8,31 @@
  * @var $this yii\web\View
  * @var $model \fedornabilkin\binds\models\Seo
  */
+
+use yii\helpers\Html;
+
 ?>
-<hr>
 <h4> Seo информация </h4>
-<?= \yii\helpers\Html::activeLabel($model, 'title');?>
-<?= \yii\helpers\Html::activeInput('text', $model, 'title', ['class'=>'form-control'])?>
-
-<?= \yii\helpers\Html::activeLabel($model, 'alias');?>
-<?= \yii\helpers\Html::activeInput('text', $model, 'alias', ['class'=>'form-control'])?>
-<?=\yii\helpers\Html::error($model, 'alias', ['style' => 'color:red'])?>
-
-<?= \yii\helpers\Html::activeLabel($model, 'h1');?>
-<?= \yii\helpers\Html::activeInput('text', $model, 'h1', ['class'=>'form-control'])?>
-
-<?= \yii\helpers\Html::activeLabel($model, 'keywords');?>
-<?= \yii\helpers\Html::activeInput('text', $model, 'keywords', ['class'=>'form-control'])?>
-
-<?= \yii\helpers\Html::activeLabel($model, 'description');?>
-<?= \yii\helpers\Html::activeTextarea($model, 'description', ['class'=>'form-control'])?>
+<div class="row">
+    <div class="col-xs-12 col-sm-6">
+        <?= Html::activeLabel($model, 'title');?>
+        <?= Html::activeInput('text', $model, 'title', ['class'=>'form-control'])?>
+    </div>
+    <div class="col-xs-12 col-sm-6">
+        <?= Html::activeLabel($model, 'alias');?>
+        <?= Html::activeInput('text', $model, 'alias', ['class'=>'form-control'])?>
+        <?= Html::error($model, 'alias', ['style' => 'color:red'])?>
+    </div>
+    <div class="col-xs-12 col-sm-6">
+        <?= Html::activeLabel($model, 'keywords');?>
+        <?= Html::activeInput('text', $model, 'keywords', ['class'=>'form-control'])?>
+    </div>
+    <div class="col-xs-12 col-sm-6">
+        <?= Html::activeLabel($model, 'h1');?>
+        <?= Html::activeInput('text', $model, 'h1', ['class'=>'form-control'])?>
+    </div>
+    <div class="col-xs-12">
+        <?= Html::activeLabel($model, 'description');?>
+        <?= Html::activeTextarea($model, 'description', ['class'=>'form-control'])?>
+    </div>
+</div>

@@ -33,17 +33,19 @@ class UidBehavior extends Behavior
         ];
     }
 
+    /**
+     *
+     */
     public function beforeInsert() {
 
-        $model = $this->getOwnerModel();
+        $model = $this->_getOwnerModel();
 
         if (!$model->uid) {
             $uid = new Uid();
             if ($this->insertStatus) {
                 $uid->status = $this->insertStatus;
             }
-//            $uid->id_user   = self::getUserId();
-//            $uid->id_action = 'create';
+
             $uid->table_name = $model::tableName();
             $uid->save();
             $model->uid = Uid::findOne($uid->id)->id;
@@ -51,11 +53,11 @@ class UidBehavior extends Behavior
     }
 
     /**
-     * Update action and id_user before model update
+     *
      */
     public function beforeUpdate() {
 
-        $model = $this->getOwnerModel();
+        $model = $this->_getOwnerModel();
         $uid = Uid::find()->where(['id' => $model->uid])->one();
 
         if ($uid) {
@@ -65,25 +67,12 @@ class UidBehavior extends Behavior
         }
     }
 
-    private function getOwnerModel()
+    /**
+     * @return ActiveRecord
+     */
+    private function _getOwnerModel()
     {
         return $this->owner;
-    }
-
-    public function getUids()
-    {
-        return $this->owner->hasOne(Uid::class, ['id' => 'uid']);
-    }
-
-    public function getStatus()
-    {
-//        return $this->owner->hasOne(PmStatus::class, ['id' => 'id_status'])
-//            ->viaTable('pm_uids', ['uid' => 'uid']);
-    }
-
-
-    private static function getUserId(){
-        return \Yii::$app->user->identity->id;
     }
 
 }

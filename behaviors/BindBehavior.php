@@ -9,6 +9,7 @@
 namespace fedornabilkin\binds\behaviors;
 
 use fedornabilkin\binds\models\Bind;
+use fedornabilkin\binds\models\Catalog;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 
@@ -18,6 +19,14 @@ use yii\db\ActiveRecord;
  */
 class BindBehavior extends Behavior
 {
+
+    public $tree = [
+        'nicknames' => [],
+    ];
+
+    /**
+     * @return array
+     */
     public function events()
     {
         return [
@@ -26,43 +35,57 @@ class BindBehavior extends Behavior
         ];
     }
 
-    public $settings = [
-        'nicknames' => [],
-    ];
-
-
-    public function getSettings() {
-        $settings = [];
-        $nicknames = [];
-        foreach ($this->settings['nicknames'] as $nn => $pars){
-            $nicknames[$nn] = $pars;
-            if (!isset($pars['tree'])){
-                $nicknames[$nn]['tree'] = false;
-            }
-            if (isset($pars['data']) && $pars['data']) {
-                $nicknames[$nn]['data'] = $pars['data']->all();
-            }
-        }
-        $settings['nicknames'] = $nicknames;
-        return $settings;
-    }
-
     public function beforeUpdate() {
         $this->saveBinds();
     }
 
+    /**
+     * Обработка сущностей Catalog, которые должны быть привязаны к модели
+     */
     public function saveBinds()
     {
-        if ($this->settings['nicknames']) {
-            $r = \Yii::$app->request;
+        if ($this->tree['nicknames']) {
+
+            $ids = [];
+            // Собираем все id из запроса
+            foreach ($this->tree['nicknames'] as $nn => $pars) {
+                $ids = array_merge($ids, $this->_getBindId($nn));
+            }
+
+            // по id получаем список uid, которые необходимо привязать
+            if ($ids) {
+                $ids_str = implode(',', $ids);
+                $models = Catalog::find()->where("id IN ($ids_str)")->all();
+            } else {
+                $models = [];
+            }
 
             $binds = [];
-            foreach ($this->settings['nicknames'] as $nn => $pars) {
-                $binds = array_merge($binds, $r->post($nn) ?? []);
+            foreach ($models as $model) {
+                $binds[] = $model->uid;
             }
 
             $binds = array_filter($binds);
             Bind::setBinds($this->owner->uid, $binds);
         }
+    }
+
+    /**
+     * @param $nn string
+     * @return array
+     */
+    private function _getBindId($nn)
+    {
+        $r = \Yii::$app->request;
+        $values = $r->post($nn);
+
+        $ids = [];
+        foreach ($values as $val) {
+            if($val){
+                $ids[] = $val;
+            }
+        }
+
+        return $ids;
     }
 }

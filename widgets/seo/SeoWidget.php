@@ -11,8 +11,13 @@ namespace fedornabilkin\binds\widgets\seo;
 
 use fedornabilkin\binds\models\base\BindModel;
 use fedornabilkin\binds\models\Seo;
+use function Symfony\Component\Debug\Tests\testHeader;
 use yii\base\Widget;
 
+/**
+ * Class SeoWidget
+ * @package fedornabilkin\binds\widgets\seo
+ */
 class SeoWidget extends Widget
 {
     /** @var  BindModel */
@@ -25,6 +30,7 @@ class SeoWidget extends Widget
     public function init()
     {
         parent::init();
+        $this->params['post'] = \Yii::$app->request->post();
         $this->prepareModel();
     }
 
@@ -33,6 +39,24 @@ class SeoWidget extends Widget
         echo $this->render('index', ['model' => $this->seoModel]);
     }
 
+    /**
+     * Если нет привязанной модели Seo, то создаем новую
+     * и загружаем данными из post-запроса на случай ошибки, чтобы формы не затерлись
+     */
+    protected function prepareModel()
+    {
+        $this->seoModel = Seo::findOne(['uid_content' => $this->model->uid]) ?? new Seo();
+        $this->seoModel->load($this->params['post']);
+
+        if ($this->seoModel->isNewRecord) {
+            $this->seoModel->title = $this->model->title ?? ($this->seoModel->title ?: '');
+            $this->seoModel->alias = $this->seoModel->alias ?? $this->setAlias();
+        }
+    }
+
+    /**
+     * @return string
+     */
     public function setAlias(){
         // если нет заголовка и нет заголовка СЕО или он пустой
         if (empty($this->model->title) && $this->seoModel->title == '' ){
@@ -42,19 +66,5 @@ class SeoWidget extends Widget
         }
 
         return $this->seoModel->prepareAlias($title);
-    }
-
-    protected function prepareModel()
-    {
-        $this->seoModel = $this->model->getBindModel(Seo::class)->all();
-        $this->seoModel = $this->seoModel[0] ?? new Seo();
-//        var_dump($this->seoModel);exit;
-//        $this->seoModel = Seo::findOneFiltered(['uid_content' => $this->model->uid]) ?: new Seo();
-        $this->seoModel->load(\Yii::$app->request->post());
-        if ($this->seoModel->isNewRecord) {
-            $this->seoModel->title = $this->model->title ?? ($this->seoModel->title ?: '');
-            $this->seoModel->alias = $this->seoModel->alias ?? $this->setAlias();
-            $this->seoModel->description = isset($this->model->preview) ? strip_tags($this->model->preview) : '';
-        }
     }
 }
