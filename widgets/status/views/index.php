@@ -15,9 +15,11 @@ use yii\helpers\Html;
 ?>
 
 <div class="statuses btn-group btn-group-sm">
-<?php foreach ($btns as $index => $btn): ?>
+<?php foreach ($btns as $index => $btn):
+    $active = $index == $model->uids->status ? 'active' : '';
+    ?>
     <?= Html::button($btn, [
-    'class' => 'change btn btn-default ' . $index == $model->uids->status ? 'active' : '',
+    'class' => 'change btn btn-default ' . $active,
     'data-uid' => $model->uid,
     'data-status' => $index,
     'data-request' => "ajax",
