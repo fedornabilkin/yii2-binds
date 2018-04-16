@@ -103,7 +103,7 @@ class Catalog extends BindModel
             [['alias', 'nickname', 'name'], 'string', 'max' => 60],
             [['icon'], 'string', 'max' => 255],
             [['active', 'selected', 'disabled', 'readonly', 'visible', 'collapsed', 'movable_u', 'movable_d', 'movable_l', 'movable_r', 'removable', 'removable_all'], 'string', 'max' => 1],
-            [['uid'], 'unique'],
+            [['alias', 'uid'], 'unique'],
         ];
     }
 

@@ -28,20 +28,29 @@ class BindsWidget extends Widget
         $this->_binds = array_column($this->model->bindsArray, 'uid_bind');
         $this->_idsIn = implode(',', $this->_binds);
 
-        foreach ($tree['nicknames'] as $nn => $pars) {
-            echo $this->_getTree($nn, $pars);
+        if (!empty($tree) && count($tree['nicknames'])) {
+            foreach ($tree['nicknames'] as $nn => $pars) {
+                echo $this->_getTree($nn, $pars);
+            }
         }
     }
 
     private function _getTree($nn, $pars)
     {
-        $rootNode = Catalog::findOne(['nickname' => $nn]);
+        $str = '';
+        $rootNode = Catalog::find()->where(['nickname' => $nn, 'active' => 1])->one();
+        if(!$rootNode){
+            return $str;
+        }
         $query = Catalog::find()
             ->where(['root' => $rootNode->id])
             ->andWhere(['<>', 'nickname', $nn])
             ->addOrderBy('root, lft');
 
-        $selected = Catalog::find()->where(['root' => $rootNode->id])->andWhere("uid IN ({$this->_idsIn})")->all();
+        $selected = [];
+        if ($this->_idsIn) {
+            $selected = Catalog::find()->where(['root' => $rootNode->id])->andWhere("uid IN ({$this->_idsIn})")->all();
+        }
 
         $value = [];
         foreach ($selected as $index => $item) {
@@ -50,7 +59,7 @@ class BindsWidget extends Widget
             }
         }
 
-        $str = $rootNode->name .'<br>';
+        $str .= $rootNode->name .'<br>';
         $str .= TreeViewInput::widget([
             'query'             => $query,
 //            'headingOptions'    => ['label' => ''],
