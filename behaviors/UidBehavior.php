@@ -29,7 +29,6 @@ class UidBehavior extends Behavior
         return [
             ActiveRecord::EVENT_BEFORE_INSERT => 'beforeInsert',
             ActiveRecord::EVENT_BEFORE_UPDATE => 'beforeUpdate',
-
         ];
     }
 
@@ -48,7 +47,7 @@ class UidBehavior extends Behavior
 
             $uid->table_name = $model::tableName();
             $uid->save();
-            $model->uid = Uid::findOne($uid->id)->id;
+            $model->uid = ($this->_getUidModel($uid->id))->id;
         }
     }
 
@@ -58,9 +57,9 @@ class UidBehavior extends Behavior
     public function beforeUpdate() {
 
         $model = $this->_getOwnerModel();
-        $uid = Uid::find()->where(['id' => $model->uid])->one();
 
-        if ($uid) {
+        if ($uid = $this->_getUidModel($model->uid)) {
+            $uid->updated_at = time();
             $uid->save();
         }else{
             $this->beforeInsert();
@@ -73,6 +72,14 @@ class UidBehavior extends Behavior
     private function _getOwnerModel()
     {
         return $this->owner;
+    }
+
+    /**
+     * @return ActiveRecord
+     */
+    private function _getUidModel($id)
+    {
+        return Uid::findOne($id);
     }
 
 }

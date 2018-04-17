@@ -80,12 +80,14 @@ class BindBehavior extends Behavior
         $values = $r->post($nn);
 
         $ids = [];
+        if (!is_array($values)) {
+            return $ids;
+        }
         foreach ($values as $val) {
             if($val){
                 $ids[] = $val;
             }
         }
-
         return $ids;
     }
 }

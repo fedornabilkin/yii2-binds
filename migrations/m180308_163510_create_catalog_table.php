@@ -20,8 +20,8 @@ class m180308_163510_create_catalog_table extends Migration
         $this->createTable('{{%bind_catalog}}', [
             'id' => $this->primaryKey(),
             'uid'=> $this->bigInteger()->notNull()->unsigned()->unique(),
-            'alias'=> $this->char(60)->unique(),
-            'nickname'=> $this->char(60)->unique(),
+            'alias'=> $this->char(60),
+            'nickname'=> $this->char(60),
             'root' => $this->integer(),
             'lft' => $this->integer()->notNull(),
             'rgt' => $this->integer()->notNull(),

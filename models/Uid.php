@@ -46,7 +46,7 @@ class Uid extends ActiveRecord
      * @param int $id
      * @return array|string
      */
-    public static function getStatuses($id = 0)
+    public static function getStatuses($id = false)
     {
         $arr = [
             self::STATUS_PUBLISHED => 'Опубликован',
@@ -54,7 +54,7 @@ class Uid extends ActiveRecord
             self::STATUS_DELETED => 'Удален',
         ];
 
-        return $id ? $arr[$id] : $arr;
+        return ($id !== false && !empty($arr[$id])) ? $arr[$id] : $arr;
     }
 
 }
