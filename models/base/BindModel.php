@@ -15,6 +15,7 @@ use fedornabilkin\binds\models\Seo;
 use fedornabilkin\binds\models\Uid;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
+use yii\web\NotFoundHttpException;
 
 /**
  * Class BindModel
@@ -152,8 +153,7 @@ class BindModel extends ActiveRecord
      */
     public function getBindsArray()
     {
-        $query = $this->hasMany(Bind::class, ['uid' => 'uid']);
-        return $query->asArray();
+        return $this->getBinds()->asArray();
     }
 
 
@@ -173,9 +173,7 @@ class BindModel extends ActiveRecord
      */
     public function getCatalogArray()
     {
-        $query = $this->hasMany(Catalog::class, ['uid' => 'uid_bind'])
-            ->viaTable(Bind::tableName(), ['uid' => 'uid']);
-        return $query->asArray();
+        return $this->getCatalog()->asArray();
     }
 
 
@@ -193,6 +191,27 @@ class BindModel extends ActiveRecord
             ->where(['root' => $root->id])
             ->viaTable(Bind::tableName(), ['uid' => 'uid']);
         return $query;
+    }
+
+
+    /**
+     * Возвращает модель по ЧПУ
+     *
+     * @param $alias
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
+    public function getModelByAlias($alias)
+    {
+        $model = self::find()->filterAvailable()
+            ->joinWith('seo')
+            ->where(['alias' => $alias])
+            ->one();
+
+        if(!$model){
+            throw new NotFoundHttpException(\Yii::t('app', 'The requested page does not exist.'));
+        }
+        return $model;
     }
 
 
