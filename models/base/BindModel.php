@@ -24,6 +24,9 @@ use yii\web\NotFoundHttpException;
 class BindModel extends ActiveRecord
 {
 
+    private $_uids = [];
+    private $_nameModels = [];
+
     /**
      * @return array the behavior configurations.
      */
@@ -48,7 +51,7 @@ class BindModel extends ActiveRecord
      * Post
      * ...
      * public function getChildModels(){
-     *    return array_merge(parent::getChildModels(), [Comment::class]);
+     *    return array_merge(parent::getChildModels(), [Comment::tableName() => Comment::class]);
      * }
      * ...
      *
@@ -61,7 +64,7 @@ class BindModel extends ActiveRecord
     public function getChildModels()
     {
         return [
-            Seo::class,
+            Seo::tableName() => Seo::class,
         ];
     }
 
@@ -76,27 +79,50 @@ class BindModel extends ActiveRecord
      */
     public function delete()
     {
-        $uids = [$this->uid];
+        $this->_uids = [$this->uid];
 
-        // search uids hasOne models
+        // search uids hasOne models recursive
         $removeModels = $this->getChildModels();
-
-        foreach ($removeModels as $class){
-            $model = \Yii::createObject(['class' => $class]);
-            $rows = $model::findAll(['uid_content' => $this->uid]);
-
-            foreach($rows as $row){
-                $uids[] = $row->uid;
-            }
-        }
+        $this->_getUids($removeModels, $this->uid);
 
         // remove all uids and models
-        $models = Uid::findAll($uids);
+        $models = Uid::findAll($this->_uids);
         foreach ($models as $model) {
             $model->delete();
         }
         return true;
 
+    }
+
+    /**
+     * Собирает uids связанных моделей (Customer->Vacancy->Candidate)
+     * У модели Customer в подчиненных является модель Vacancy и она далжна быть указана в массиве,
+     * который возвращает Customer::getChildModels(). У модели Vacancy, соответственно Candidate.
+     * Таким образом, если мы удалим модель Customer, то будут удалены все модели Vacancy, которые привязаны
+     * к Customer, а также для каждой модели Vacancy будут удалены все модели Candidate.
+     *
+     * @param $models
+     * @param $uid
+     * @return array
+     */
+    private function _getUids($models, $uid)
+    {
+        foreach ($models as $name => $class){
+            /** @var $model BindModel */
+            $model = \Yii::createObject(['class' => $class]);
+            $rows = $model::findAll(['uid_content' => $uid]);
+
+            foreach($rows as $row){
+                $this->_uids[] = $row->uid;
+            }
+
+
+            if($child = $model->getChildModels()){
+                $this->_uids = array_merge($this->_uids, $this->_getUids($child, $model->uid));
+            }
+        }
+
+        return $this->_uids;
     }
 
     /**
@@ -134,7 +160,7 @@ class BindModel extends ActiveRecord
      */
     public function getUids()
     {
-        return $this->hasOne(Uid::className(), ['id' => 'uid']);
+        return $this->hasOne(Uid::class, ['id' => 'uid']);
     }
 
 

@@ -45,6 +45,11 @@ class Seo extends BindModel
         ];
     }
 
+    public function getChildModels()
+    {
+        return [];
+    }
+
     public static function loadMeta()
     {
         $get = \Yii::$app->request->get();

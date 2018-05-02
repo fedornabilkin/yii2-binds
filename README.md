@@ -38,14 +38,6 @@ use fedornabilkin\binds\behaviors\BindBehavior;
 use fedornabilkin\binds\behaviors\SeoBehavior;
 use fedornabilkin\binds\models\base\BindModel;
 
-/**
- * This is the model class for table "post".
- *
- * @property int $id
- * @property int $uid
- * @property string $title
- * @property string $post
- */
 class Post extends BindModel
 {
 
@@ -77,45 +69,32 @@ class Post extends BindModel
     }
 
     /**
-     * @inheritdoc
+     * tableName()
+     * rules()
+     * attributeLabels()
+     * ...
      */
-    public static function tableName()
-    {
-        return 'post';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return [
-            [['post'], 'string'],
-            [['title'], 'string', 'max' => 150],
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function attributeLabels()
-    {
-        return [
-            'id' => 'ID',
-            'title' => 'Title',
-            'post' => 'Post',
-        ];
-    }
+     
 
     /**
      * модели hasOne, указать для удаления дочерней модели
      * если она связана с родительской один-к-одному
+     * 
+     * Один комментарий может быть привязан только к одной модели Post
      */
     public function getChildModels()
     {
         return array_merge(parent::getChildModels(), [
-            'comment' => Comment::class,
+            Comment::tableName() => Comment::class,
         ]);
+    }
+    
+    /**
+     * @return ActiveQuery
+     */
+    public function getComments()
+    {
+        return $this->hasOne(Comment::class, ['uid_content' => 'uid']);
     }
 }
 ```
@@ -133,17 +112,11 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model frontend\models\Post */
 
-$this->title = 'Update Post';
-$this->params['breadcrumbs'][] = ['label' => 'Posts', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->title, 'url' => ['view', 'id' => $model->id]];
-$this->params['breadcrumbs'][] = 'Update';
 ?>
 ```
 
 ```html
 <div class="post-update">
-
-    <h1><?= Html::encode($this->title) ?></h1>
 
     <?php $form = ActiveForm::begin(); ?>
     <div class="row">
@@ -171,9 +144,22 @@ $this->params['breadcrumbs'][] = 'Update';
 </div>
 ```
 
+Если к комментарию привязана модель рейтинга, то в `Comment::getChildModels()`
+необходимо указать эту модель, чтобы при удалении модели Post удалить все комментарии,
+которые к ней относятся, а также все рейтинги для каждого удаленного комментария.
+
+Такая схема удаления моделей будет работать только в том случае, если эти модели
+имеют поле `uid` с внешним ключом на поле `id` таблицы `bind_uids` и привязаны
+к родительской модели через поле `uid_content`.
+
+Рекурсивный поиск `uid` при удалении осуществляется в методе `BindModel::_getUids()`
+
+Конфигурация
+------------
+
 Чтобы SEO-данные отобразились на странице в metatags, необходимо добавить
 `SeoBehavior` в компонент `View` в конфиграционном файле. Также в адресе
-необходимо передать `?alias=adres-stranicy`.
+необходимо передать $_GET `?alias=adres-stranicy`.
 
 ```php
 'components' => [

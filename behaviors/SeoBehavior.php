@@ -111,8 +111,8 @@ class SeoBehavior extends Behavior
         /** @var View $view */
         $view = $this->owner;
 
-        $view->title = $seo->title;
-        $view->registerMetaTag(['name' => 'title', 'content' => $seo->title], 'title');
+        $view->title = $seo->title ?? $view->title;
+        $view->registerMetaTag(['name' => 'title', 'content' => $view->title], 'title');
         $view->registerMetaTag(['name' => 'keywords', 'content' => $seo->keywords], 'keywords');
         $view->registerMetaTag(['name' => 'description', 'content' => $seo->description], 'description');
     }

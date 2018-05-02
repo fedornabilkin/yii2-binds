@@ -18,7 +18,7 @@ class StatusController extends \yii\web\Controller
     {
         return [
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'save' => ['POST'],
                 ],
